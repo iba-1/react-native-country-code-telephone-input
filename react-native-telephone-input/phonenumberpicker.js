@@ -11,8 +11,8 @@ import {
     TextInput,
     View,
     TouchableOpacity,
+    Platform
 }  from 'react-native';
-
 
 import { parse, format, asYouType } from 'libphonenumber-js'
 /* maps callingCode -> CCA2        */
@@ -26,8 +26,9 @@ import Countries     from './data'
 var styles = StyleSheet.create({
     containerCol: {
         flexDirection: 'column',
-        marginVertical:8,
-        marginHorizontal:8
+        // marginHorizontal:"10%",
+        // marginVertical:"2%",
+
     },
 
     containerRow: {
@@ -37,15 +38,37 @@ var styles = StyleSheet.create({
     },
 
     viewBottomBorder: {
-        marginHorizontal:30,
-        borderBottomColor: 'black',
-        borderBottomWidth: 1
+        marginHorizontal:"9%",
+        padding: Platform.OS === "ios" ? "3%" : 0,
+        // borderBottomColor: 'black',
+        // borderBottomWidth: 1
+        backgroundColor: "white",
+        borderWidth: 2,
+        borderColor:"#005EDE",
+        borderRadius: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 1
+        },
+        shadowOpacity: 0.22,
+        shadowRadius: 1.22,
+        elevation: 2
     },
 
     TextInputPhoneNumber: {
         fontSize:20,
-        height:60,
-        alignItems:'center'
+        // height:60,
+        color:"#005EDE",
+        fontWeight: '600',
+        alignItems:'flex-start'
+    },
+    TextInputPhoneNumberFirst: {
+        fontSize:20,
+        color:"#005EDE",
+        fontWeight: '600',
+        alignItems:'flex-start',
+        textAlign: 'left'
     },
 
     TextCountryName: {
@@ -62,7 +85,7 @@ class PhoneNumberPicker extends React.Component {
           phoneNo: '',
           country: props.countryHint,
           onChange: props.onChange,
-          skipFormatAsYouType: false
+          skipFormatAsYouType: true
       }
    }
 
@@ -109,11 +132,10 @@ class PhoneNumberPicker extends React.Component {
     getCountryFromCallingCode(callingCode, phoneNumber) {
         let cca2 = ""
         let countryName = ""
-
         callingCode = callingCode.replace(/\D/g,'')
         phoneNumber = phoneNumber.replace(/\D/g,'')
-
         do {
+            // iba: cut 5th number
             if (callingCode.length > 4) {
                 callingCode = callingCode.slice(0,4)
                 break
@@ -121,10 +143,10 @@ class PhoneNumberPicker extends React.Component {
 
             if (CallingCodeToCCA2.country_phone_code_to_countries[callingCode] &&
                 CallingCodeToCCA2.country_phone_code_to_countries[callingCode][0]) {
-                cca2  = CallingCodeToCCA2.country_phone_code_to_countries[callingCode][0]
-            }
+                    cca2  = CallingCodeToCCA2.country_phone_code_to_countries[callingCode][0]
+                }
 
-            let formatter = new asYouType()
+             let formatter = new asYouType()
             /* may be a multi nation code as AS +1684 or +1242 bahamas try the formatter instead */
             if (cca2.length == 0) {
                 formatter.input("+" + callingCode)
@@ -132,15 +154,15 @@ class PhoneNumberPicker extends React.Component {
                     cca2 = formatter.country
                 }
             }
-
-            /* see if the user mistypped +1684 as +168 calling code and 4 as country number */
-            if (cca2.length == 0) {
-                formatter.input("+" + callingCode + phoneNumber)
-                if (formatter.country !== undefined && formatter.country.length == 2) {
-                    cca2 = formatter.country
-                }
-            }
-
+        //
+        //     /* see if the user mistypped +1684 as +168 calling code and 4 as country number */
+        //     if (cca2.length == 0) {
+        //         formatter.input("+" + callingCode + phoneNumber)
+        //         if (formatter.country !== undefined && formatter.country.length == 2) {
+        //             cca2 = formatter.country
+        //         }
+        //     }
+        //
             if (cca2.length) {
                 for (let i = 0; i < Countries.length; i++) {
                     if (Countries[i].code.toUpperCase() == cca2.toUpperCase()) {
@@ -151,7 +173,7 @@ class PhoneNumberPicker extends React.Component {
                 }
             }
         } while (0)
-
+        //
         /* both the name an cc2 should be resoled or none */
         if (countryName.length == 0 || cca2.length == 0) {
             countryName = this.state.country.callingCode.length > 0 ? "Invalid country code" : "Choose a country"
@@ -206,12 +228,12 @@ class PhoneNumberPicker extends React.Component {
     }
 
     componentDidMount() {
- 
-        setTimeout(
-            () => {
-                this.textInputPhoneNumber.focus()},
-            100
-        );
+
+        // setTimeout(
+        //     () => {
+        //         this.textInputPhoneNumber.focus()},
+        //     100
+        // );
     }
 
     SafeRenderCountryPicker(cca2) {
@@ -226,7 +248,7 @@ class PhoneNumberPicker extends React.Component {
             cca2 = 'LS' /* Lesotho :( */
         }
         countryPicker =
-            <View style={[styles.containerRow, styles.viewBottomBorder]}>
+            <View style={[styles.containerRow]}>
             <TouchableOpacity style={[styles.containerRow]} onPress={()=> this.countryPicker.openModal()}>
             <CountryPicker
             ref={countryPicker => this.countryPicker = countryPicker}
@@ -246,27 +268,34 @@ class PhoneNumberPicker extends React.Component {
         if (this.state.skipFormatAsYouType) {
             return this.state.phoneNo
         }
-        return new asYouType(this.state.country.cca2).input(this.state.phoneNo)
+
+        // iba: always skip formatting
+        // OP code: return new asYouType(this.state.country.cca2).input(this.state.phoneNo)
+        return this.state.phoneNo
+
     }
 
     render() {
         return (
             <View style={styles.containerCol}>
-                {this.SafeRenderCountryPicker(this.state.country.cca2)}
+                {/* {this.SafeRenderCountryPicker(this.state.country.cca2)} */}
                 <View style={styles.containerRow}>
+
+                     {/* OP Code: <View style={[styles.containerRow, styles.viewBottomBorder]}> */}
+                     {/* I removed the underline styling by removing stles.viewBottomBorder */}
                      <View style={[styles.containerRow, styles.viewBottomBorder]}>
-                     <TextInput style={[styles.TextInputPhoneNumber, {flex:3, borderBottomWidth:2}]}
+                     <TextInput style={[styles.TextInputPhoneNumberFirst, {flex:2}]}
                      underlineColorAndroid="transparent"
                      onChangeText={this.CallingCodeChanged.bind(this)}
                      value={"+" + this.state.country.callingCode}
                      keyboardType="phone-pad"/>
 
-                     <TextInput style={[styles.TextInputPhoneNumber,{flex:1}]}
+                     <TextInput style={[styles.TextInputPhoneNumber,{flex:0.1}]}
                      underlineColorAndroid="transparent"
                      editable={false}
-                     value={"-"}/>
+                     value={" "}/>
 
-                     <TextInput style={[styles.TextInputPhoneNumber, {flex:8, borderBottomWidth:2}]}
+                     <TextInput style={[styles.TextInputPhoneNumber, {flex:9}]}
                      ref={textInputPhoneNumber => this.textInputPhoneNumber = textInputPhoneNumber}
                      underlineColorAndroid="transparent"
                      onChangeText={this.PhoneChanged.bind(this)}
@@ -282,14 +311,14 @@ class PhoneNumberPicker extends React.Component {
         );
     }
 }
-
-PhoneNumberPicker.PropTypes = {
-    onChange: React.PropTypes.Function,
-    countryHint: React.PropTypes.Object,
-}
-
-PhoneNumberPicker.defaultProps = {
-    countryHint: {name: 'United States', cca2: 'US', callingCode:'1'},
-}
+//
+// PhoneNumberPicker.PropTypes = {
+//     onChange: React.PropTypes.Function,
+//     countryHint: React.PropTypes.Object,
+// }
+//
+// PhoneNumberPicker.defaultProps = {
+//     countryHint: {name: 'United States', cca2: 'US', callingCode:'1'},
+// }
 
 export default PhoneNumberPicker
