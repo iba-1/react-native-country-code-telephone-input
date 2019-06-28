@@ -14,7 +14,7 @@ import {
     Text,
     StyleSheet
 } from 'react-native';
-
+import PropTypes from 'prop-types';
 import dataCountries from './data'
 
 var styles = StyleSheet.create({
@@ -56,9 +56,9 @@ var styles = StyleSheet.create({
 
 
 class CountryPicker extends Component {
-    static propTypes = {
-        onChange: React.PropTypes.func.isRequired,
-    }
+    // static propTypes = {
+    //     onChange: React.PropTypes.func.isRequired,
+    // }
 
     constructor (props) {
         super(props)
