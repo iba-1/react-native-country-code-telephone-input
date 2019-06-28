@@ -4,7 +4,6 @@
 'use strict';
 
 import React, {Component} from 'react';
-import { connect } from 'react-redux'
 import {
    Text,
    StyleSheet,
@@ -12,10 +11,6 @@ import {
    View,
 }  from 'react-native';
 
-import RegisterAPI    from '../../lib/libregisterapi'
-import FilledButton   from '../filledbutton'
-import CommonStyles   from '../commonstyles'
-import LoginPINVerify from './loginpinverify'
 
 import Icon from 'react-native-vector-icons/FontAwesome'
 
@@ -37,7 +32,7 @@ var styles = StyleSheet.create({
 });
 
 
-class PinPicker extends React.Component {
+export default class PinPicker extends React.Component {
     constructor (props) {
        super(props)
        let digits = []
@@ -130,14 +125,8 @@ class PinPicker extends React.Component {
     }
 }
 
-PinPicker.PropTypes = {
-    onChangePin: React.PropTypes.func.isRequired,
-    numDigits: React.PropTypes.number,
-}
+
 
 PinPicker.defaultProps = {
     numDigits: 6
 }
-
-const mapStateToProps = (state) => ({})
-export default connect(mapStateToProps)(PinPicker)
